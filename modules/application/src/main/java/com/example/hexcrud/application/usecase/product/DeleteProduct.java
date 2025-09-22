@@ -1,11 +1,8 @@
 package com.example.hexcrud.application.usecase.product;
 
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.port.in.product.DeleteProductUseCase;
 import com.example.hexcrud.domain.port.out.product.ProductRepositoryPort;
 
-@Component
 public class DeleteProduct implements DeleteProductUseCase {
 
     private final ProductRepositoryPort productRepository;

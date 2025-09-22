@@ -4,11 +4,7 @@ import com.example.hexcrud.domain.model.order.Order;
 import com.example.hexcrud.domain.port.in.order.CreateOrderUseCase;
 import com.example.hexcrud.domain.port.out.client.ClientRepositoryPort;
 import com.example.hexcrud.domain.port.out.order.OrderRepositoryPort;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-
-@Component
 public class CreateOrder implements CreateOrderUseCase {
     private final OrderRepositoryPort orderRepository;
     private final ClientRepositoryPort clientRepository;
@@ -19,7 +15,6 @@ public class CreateOrder implements CreateOrderUseCase {
     }
 
     @Override
-    @Transactional
     public Order execute(Input input) {
         clientRepository.findById(input.clientId())
                 .orElseThrow(() -> new RuntimeException("Client not found with id: " + input.clientId()));

@@ -1,12 +1,9 @@
 package com.example.hexcrud.application.usecase.client;
 
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.port.in.client.DeleteClientUseCase;
 import com.example.hexcrud.domain.port.out.client.ClientRepositoryPort;
 
-@Component
-public class DeleteClient implements DeleteClientUseCase { 
+public class DeleteClient implements DeleteClientUseCase {
 
     private final ClientRepositoryPort clientRepository;
 

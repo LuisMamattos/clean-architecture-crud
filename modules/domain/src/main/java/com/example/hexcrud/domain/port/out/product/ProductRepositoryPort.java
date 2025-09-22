@@ -8,7 +8,7 @@ import com.example.hexcrud.domain.model.product.Product;
 public interface ProductRepositoryPort {
     Product save(Product product);
     Optional<Product> findById(String id);
-    List<Product> searchAll();
+    List<Product> findAll();
     void delete(String id);
 
 }

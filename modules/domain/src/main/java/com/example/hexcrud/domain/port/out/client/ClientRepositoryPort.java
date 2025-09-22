@@ -8,7 +8,7 @@ import com.example.hexcrud.domain.model.client.Client;
 public interface ClientRepositoryPort {
     Client save(Client client);
     Optional<Client> findById(String id);
-    List<Client> searchAll();
+    List<Client> findAll();
     void delete(String id);
     Optional<Client> findByEmail(String email);
 }

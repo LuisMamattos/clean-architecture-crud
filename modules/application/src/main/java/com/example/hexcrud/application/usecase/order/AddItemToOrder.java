@@ -5,10 +5,7 @@ import com.example.hexcrud.domain.model.product.Product;
 import com.example.hexcrud.domain.port.in.order.AddItemToOrderUseCase;
 import com.example.hexcrud.domain.port.out.order.OrderRepositoryPort;
 import com.example.hexcrud.domain.port.out.product.ProductRepositoryPort;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class AddItemToOrder implements AddItemToOrderUseCase {
 
     private final OrderRepositoryPort orderRepository;
@@ -20,7 +17,6 @@ public class AddItemToOrder implements AddItemToOrderUseCase {
     }
 
     @Override
-    @Transactional
     public Order execute(Input input) {
         Order order = orderRepository.findById(input.orderId())
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + input.orderId()));

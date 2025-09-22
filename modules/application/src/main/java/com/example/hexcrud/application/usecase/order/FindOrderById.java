@@ -2,13 +2,10 @@ package com.example.hexcrud.application.usecase.order;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.model.order.Order;
 import com.example.hexcrud.domain.port.in.order.FindOrderByIdUseCase;
 import com.example.hexcrud.domain.port.out.order.OrderRepositoryPort;
 
-@Component
 public class FindOrderById implements FindOrderByIdUseCase {
     private final OrderRepositoryPort orderRepository;
 

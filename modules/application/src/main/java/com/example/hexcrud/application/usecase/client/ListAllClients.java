@@ -1,15 +1,11 @@
 package com.example.hexcrud.application.usecase.client;
 
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.model.client.Client;
 import com.example.hexcrud.domain.port.in.client.ListAllClientsUseCase;
 import com.example.hexcrud.domain.port.out.client.ClientRepositoryPort;
+import java.util.List;
 
-@Component
-public class ListAllClients implements ListAllClientsUseCase { 
+public class ListAllClients implements ListAllClientsUseCase {
 
     private final ClientRepositoryPort clientRepository;
 
@@ -17,8 +13,8 @@ public class ListAllClients implements ListAllClientsUseCase {
         this.clientRepository = clientRepository;
     }
 
-    @Override 
+    @Override
     public List<Client> execute() {
-        return clientRepository.searchAll();
+        return clientRepository.findAll(); 
     }
 }

@@ -2,14 +2,11 @@ package com.example.hexcrud.application.usecase.client;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.model.client.Client;
 import com.example.hexcrud.domain.port.in.client.UpdateClientUseCase;
 import com.example.hexcrud.domain.port.out.client.ClientRepositoryPort;
 
-@Component
-public class UpdateClient implements UpdateClientUseCase { 
+public class UpdateClient implements UpdateClientUseCase {
 
     private final ClientRepositoryPort clientRepository;
 
@@ -32,9 +29,9 @@ public class UpdateClient implements UpdateClientUseCase {
                 return new Output.EmailAlreadyExists(input.newEmail());
             }
         }
-        
+
         clientToUpdate.updateDetails(input.newName(), input.newEmail());
-        Client updatedClient = clientRepository.save(clientToUpdate); 
+        Client updatedClient = clientRepository.save(clientToUpdate);
 
         return new Output.Updated(updatedClient);
     }
