@@ -15,59 +15,59 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.hexcrud.api.web.dto.order.AddItemRequest;
 import com.example.hexcrud.api.web.dto.order.CreateOrderRequest;
 import com.example.hexcrud.api.web.dto.order.OrderResponse;
-import com.example.hexcrud.domain.port.in.order.AddItemToOrderUseCase;
-import com.example.hexcrud.domain.port.in.order.CancelOrderUseCase;
-import com.example.hexcrud.domain.port.in.order.ConfirmOrderUseCase;
-import com.example.hexcrud.domain.port.in.order.CreateOrderUseCase;
-import com.example.hexcrud.domain.port.in.order.FindOrderByIdUseCase;
-import com.example.hexcrud.domain.port.in.order.ListAllOrdersUseCase;
+import com.example.hexcrud.domain.service.order.AddItemToOrderService;
+import com.example.hexcrud.domain.service.order.CancelOrderService;
+import com.example.hexcrud.domain.service.order.ConfirmOrderService;
+import com.example.hexcrud.domain.service.order.CreateOrderService;
+import com.example.hexcrud.domain.service.order.FindOrderByIdService;
+import com.example.hexcrud.domain.service.order.ListAllOrdersService;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
 
-    private final CreateOrderUseCase createOrderUseCase;
-    private final AddItemToOrderUseCase addItemToOrderUseCase;
-    private final FindOrderByIdUseCase findOrderByIdUseCase;
-    private final ListAllOrdersUseCase listAllOrdersUseCase;
-    private final ConfirmOrderUseCase confirmOrderUseCase;
-    private final CancelOrderUseCase cancelOrderUseCase;   
+    private final CreateOrderService createOrderService;
+    private final AddItemToOrderService addItemToOrderService;
+    private final FindOrderByIdService findOrderByIdService;
+    private final ListAllOrdersService listAllOrdersService;
+    private final ConfirmOrderService confirmOrderService;
+    private final CancelOrderService cancelOrderService;
 
-     public OrderController(CreateOrderUseCase createOrderUseCase, AddItemToOrderUseCase addItemToOrderUseCase,
-                           FindOrderByIdUseCase findOrderByIdUseCase, ListAllOrdersUseCase listAllOrdersUseCase,
-                           ConfirmOrderUseCase confirmOrderUseCase, CancelOrderUseCase cancelOrderUseCase) {
-        this.createOrderUseCase = createOrderUseCase;
-        this.addItemToOrderUseCase = addItemToOrderUseCase;
-        this.findOrderByIdUseCase = findOrderByIdUseCase;
-        this.listAllOrdersUseCase = listAllOrdersUseCase;
-        this.confirmOrderUseCase = confirmOrderUseCase; 
-        this.cancelOrderUseCase = cancelOrderUseCase;   
+    public OrderController(CreateOrderService createOrderService, AddItemToOrderService addItemToOrderService,
+                           FindOrderByIdService findOrderByIdService, ListAllOrdersService listAllOrdersService,
+                           ConfirmOrderService confirmOrderService, CancelOrderService cancelOrderService) {
+        this.createOrderService = createOrderService;
+        this.addItemToOrderService = addItemToOrderService;
+        this.findOrderByIdService = findOrderByIdService;
+        this.listAllOrdersService = listAllOrdersService;
+        this.confirmOrderService = confirmOrderService;
+        this.cancelOrderService = cancelOrderService;
     }
 
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
-        var input = new CreateOrderUseCase.Input(request.clientId());
-        var order = createOrderUseCase.execute(input);
+        var input = new CreateOrderService.Input(request.clientId());
+        var order = createOrderService.execute(input);
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.fromDomain(order));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable String id) {
-        return findOrderByIdUseCase.execute(id)
+        return findOrderByIdService.execute(id)
                 .map(order -> ResponseEntity.ok(OrderResponse.fromDomain(order)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{orderId}/items")
     public ResponseEntity<OrderResponse> addItemToOrder(@PathVariable String orderId, @RequestBody AddItemRequest request) {
-        var input = new AddItemToOrderUseCase.Input(orderId, request.productId(), request.quantity());
-        var updatedOrder = addItemToOrderUseCase.execute(input);
+        var input = new AddItemToOrderService.Input(orderId, request.productId(), request.quantity());
+        var updatedOrder = addItemToOrderService.execute(input);
         return ResponseEntity.ok(OrderResponse.fromDomain(updatedOrder));
     }
 
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        List<OrderResponse> orders = listAllOrdersUseCase.execute().stream()
+        List<OrderResponse> orders = listAllOrdersService.execute().stream()
                 .map(OrderResponse::fromDomain)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(orders);
@@ -75,13 +75,13 @@ public class OrderController {
 
     @PostMapping("/{id}/confirm")
     public ResponseEntity<OrderResponse> confirmOrder(@PathVariable String id) {
-        var updatedOrder = confirmOrderUseCase.execute(id);
+        var updatedOrder = confirmOrderService.execute(id);
         return ResponseEntity.ok(OrderResponse.fromDomain(updatedOrder));
     }
 
     @PostMapping("/{id}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(@PathVariable String id) {
-        var updatedOrder = cancelOrderUseCase.execute(id);
+        var updatedOrder = cancelOrderService.execute(id);
         return ResponseEntity.ok(OrderResponse.fromDomain(updatedOrder));
     }
 }

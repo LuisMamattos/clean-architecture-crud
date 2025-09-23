@@ -318,7 +318,6 @@
         }
       }
 
-      // --- PRODUCT FUNCTIONS (Similar structure) ---
       function renderProductList() {
         const listElement = document.getElementById("productList");
         listElement.innerHTML = "";
@@ -420,7 +419,6 @@
         }
       }
 
-      // --- ORDER FUNCTIONS (NEW AND REWRITTEN) ---
       async function createOrder() {
         const clientId = document.getElementById("orderClientId").value;
         if (!clientId)
@@ -474,7 +472,6 @@
           }
           itemsHtml += "</ul>";
 
-          // --- LÓGICA DOS BOTÕES DE AÇÃO ---
           let actionButtons = "";
           if (order.status === "PENDING") {
             actionButtons = `
@@ -555,7 +552,7 @@
             throw new Error(error.message || "Failed to add item to order.");
           }
           alert("Item added successfully!");
-          renderOrderList(); // Refresh the list to show the new item
+          renderOrderList();
         } catch (error) {
           alert(`Error: ${error.message}`);
         }
@@ -583,7 +580,6 @@
           renderOrderList();
         } catch (error) {
           console.error("Confirm Order Error:", error);
-          // O alert agora mostrará a mensagem de erro detalhada do backend
           alert(`Error: ${error.message}`);
         }
       }

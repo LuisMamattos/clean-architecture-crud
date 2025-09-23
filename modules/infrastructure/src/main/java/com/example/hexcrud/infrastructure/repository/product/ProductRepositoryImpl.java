@@ -3,17 +3,15 @@ package com.example.hexcrud.infrastructure.repository.product;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.model.product.Product;
-import com.example.hexcrud.domain.port.out.product.ProductRepositoryPort;
+import com.example.hexcrud.domain.repository.product.ProductRepositoryPort;
 
-@Component
+
 public class ProductRepositoryImpl implements ProductRepositoryPort {
 
     private final ProductMongoRepository repository;
 
-    // CORRIGIDO: Agora o construtor pede a ferramenta correta (ProductMongoRepository)
+    
     public ProductRepositoryImpl(ProductMongoRepository repository) {
         this.repository = repository;
     }

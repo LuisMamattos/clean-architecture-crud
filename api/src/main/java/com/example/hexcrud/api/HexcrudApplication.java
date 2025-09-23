@@ -3,8 +3,14 @@ package com.example.hexcrud.api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories; // <-- ADICIONE ESTE IMPORT
 
-@SpringBootApplication(scanBasePackages = "com.example.hexcrud",   exclude = {DataSourceAutoConfiguration.class})
+
+@EnableMongoRepositories(basePackages = "com.example.hexcrud.infrastructure.repository")
+@SpringBootApplication(
+    scanBasePackages = "com.example.hexcrud",
+    exclude = {DataSourceAutoConfiguration.class}
+)
 public class HexcrudApplication {
 
     public static void main(String[] args) {

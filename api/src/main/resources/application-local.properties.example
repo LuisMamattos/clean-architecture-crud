@@ -1,0 +1,2 @@
+# Exemplo de configuração. Copie para 'application-local.properties' e preencha.
+spring.data.mongodb.uri=mongodb+srv://<USUARIO>:<SENHA>@cluster0.weih1ca.mongodb.net/hexcruddb?retryWrites=true&w=majority&appName=Cluster0

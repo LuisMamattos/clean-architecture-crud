@@ -3,12 +3,10 @@ package com.example.hexcrud.infrastructure.repository.client;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
 import com.example.hexcrud.domain.model.client.Client;
-import com.example.hexcrud.domain.port.out.client.ClientRepositoryPort;
+import com.example.hexcrud.domain.repository.client.ClientRepositoryPort;
 
-@Component
+
 public class ClientRepositoryImpl implements ClientRepositoryPort {
 
     private final ClientMongoRepository repository;
