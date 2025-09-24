@@ -1,43 +1,14 @@
 package com.example.hexcrud.api.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import com.example.hexcrud.application.service.client.CreateClientServiceImpl;
-import com.example.hexcrud.application.service.client.DeleteClientServiceImpl;
-import com.example.hexcrud.application.service.client.FindClientByIdServiceImpl;
-import com.example.hexcrud.application.service.client.ListAllClientsServiceImpl;
-import com.example.hexcrud.application.service.client.UpdateClientServiceImpl;
-import com.example.hexcrud.application.service.order.AddItemToOrderServiceImpl;
-import com.example.hexcrud.application.service.order.CancelOrderServiceImpl;
-import com.example.hexcrud.application.service.order.ConfirmOrderServiceImpl;
-import com.example.hexcrud.application.service.order.CreateOrderServiceImpl;
-import com.example.hexcrud.application.service.order.FindOrderByIdServiceImpl;
-import com.example.hexcrud.application.service.order.ListAllOrdersServiceImpl;
-import com.example.hexcrud.application.service.product.CreateProductServiceImpl;
-import com.example.hexcrud.application.service.product.DeleteProductServiceImpl;
-import com.example.hexcrud.application.service.product.FindProductByIdServiceImpl;
-import com.example.hexcrud.application.service.product.ListAllProductsServiceImpl;
-import com.example.hexcrud.application.service.product.UpdateProductServiceImpl;
-import com.example.hexcrud.domain.repository.client.ClientRepositoryPort;
-import com.example.hexcrud.domain.repository.order.OrderRepositoryPort;
-import com.example.hexcrud.domain.repository.product.ProductRepositoryPort;
-import com.example.hexcrud.domain.service.client.CreateClientService;
-import com.example.hexcrud.domain.service.client.DeleteClientService;
-import com.example.hexcrud.domain.service.client.FindClientByIdService;
-import com.example.hexcrud.domain.service.client.ListAllClientsService;
-import com.example.hexcrud.domain.service.client.UpdateClientService;
-import com.example.hexcrud.domain.service.order.AddItemToOrderService;
-import com.example.hexcrud.domain.service.order.CancelOrderService;
-import com.example.hexcrud.domain.service.order.ConfirmOrderService;
-import com.example.hexcrud.domain.service.order.CreateOrderService;
-import com.example.hexcrud.domain.service.order.FindOrderByIdService;
-import com.example.hexcrud.domain.service.order.ListAllOrdersService;
-import com.example.hexcrud.domain.service.product.CreateProductService;
-import com.example.hexcrud.domain.service.product.DeleteProductService;
-import com.example.hexcrud.domain.service.product.FindProductByIdService;
-import com.example.hexcrud.domain.service.product.ListAllProductsService;
-import com.example.hexcrud.domain.service.product.UpdateProductService;
+// Imports para as implementações da camada de aplicação (UseCaseImpl)
+import com.example.hexcrud.application.usecase.client.*;
+import com.example.hexcrud.application.usecase.order.*;
+import com.example.hexcrud.application.usecase.product.*;
+// Imports para as portas (interfaces) da camada de domínio (UseCase e Repository)
+import com.example.hexcrud.domain.repository.client.ClientRepository;
+import com.example.hexcrud.domain.repository.order.OrderRepository;
+import com.example.hexcrud.domain.repository.product.ProductRepository;
+// Imports para a camada de infraestrutura
 import com.example.hexcrud.infrastructure.repository.client.ClientMongoRepository;
 import com.example.hexcrud.infrastructure.repository.client.ClientRepositoryImpl;
 import com.example.hexcrud.infrastructure.repository.order.OrderMongoRepository;
@@ -45,105 +16,108 @@ import com.example.hexcrud.infrastructure.repository.order.OrderRepositoryImpl;
 import com.example.hexcrud.infrastructure.repository.product.ProductMongoRepository;
 import com.example.hexcrud.infrastructure.repository.product.ProductRepositoryImpl;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 @Configuration
 public class BeanConfiguration {
 
     // --- REPOSITORY BEANS ---
     @Bean
-    public ClientRepositoryPort clientRepositoryPort(ClientMongoRepository repo) {
+    public ClientRepository clientRepository(ClientMongoRepository repo) {
         return new ClientRepositoryImpl(repo);
     }
 
     @Bean
-    public ProductRepositoryPort productRepositoryPort(ProductMongoRepository repo) {
+    public ProductRepository productRepository(ProductMongoRepository repo) {
         return new ProductRepositoryImpl(repo);
     }
 
     @Bean
-    public OrderRepositoryPort orderRepositoryPort(OrderMongoRepository repo) {
+    public OrderRepository orderRepository(OrderMongoRepository repo) {
         return new OrderRepositoryImpl(repo);
     }
 
-    // --- CLIENT SERVICE BEANS ---
+    // --- CLIENT USE CASE BEANS ---
     @Bean
-    public CreateClientService createClientService(ClientRepositoryPort port) {
-        return new CreateClientServiceImpl(port);
+    public CreateClient createClient(ClientRepository port) {
+        return new CreateClientImpl(port);
     }
     
     @Bean
-    public DeleteClientService deleteClientService(ClientRepositoryPort port) {
-        return new DeleteClientServiceImpl(port);
+    public DeleteClient deleteClient(ClientRepository port) {
+        return new DeleteClientImpl(port);
     }
     
     @Bean
-    public FindClientByIdService findClientByIdService(ClientRepositoryPort port) {
-        return new FindClientByIdServiceImpl(port);
+    public FindClientById findClientById(ClientRepository port) {
+        return new FindClientByIdImpl(port);
     }
     
     @Bean
-    public ListAllClientsService listAllClientsService(ClientRepositoryPort port) {
-        return new ListAllClientsServiceImpl(port);
+    public ListAllClients listAllClients(ClientRepository port) {
+        return new ListAllClientsImpl(port);
     }
     
     @Bean
-    public UpdateClientService updateClientService(ClientRepositoryPort port) {
-        return new UpdateClientServiceImpl(port);
+    public UpdateClient updateClient(ClientRepository port) {
+        return new UpdateClientImpl(port);
     }
 
-    // --- PRODUCT SERVICE BEANS ---
+    // --- PRODUCT USE CASE BEANS ---
     @Bean
-    public CreateProductService createProductService(ProductRepositoryPort port) {
-        return new CreateProductServiceImpl(port);
+    public CreateProduct createProduct(ProductRepository port) {
+        return new CreateProductImpl(port);
     }
     
     @Bean
-    public DeleteProductService deleteProductService(ProductRepositoryPort port) {
-        return new DeleteProductServiceImpl(port);
-    }
-
-    @Bean
-    public FindProductByIdService findProductByIdService(ProductRepositoryPort port) {
-        return new FindProductByIdServiceImpl(port);
+    public DeleteProduct deleteProduct(ProductRepository port) {
+        return new DeleteProductImpl(port);
     }
 
     @Bean
-    public ListAllProductsService listAllProductsService(ProductRepositoryPort port) {
-        return new ListAllProductsServiceImpl(port);
+    public FindProductById findProductById(ProductRepository port) {
+        return new FindProductByIdImpl(port);
     }
 
     @Bean
-    public UpdateProductService updateProductService(ProductRepositoryPort port) {
-        return new UpdateProductServiceImpl(port);
-    }
-
-    // --- ORDER SERVICE BEANS ---
-    @Bean
-    public CreateOrderService createOrderService(OrderRepositoryPort orderPort, ClientRepositoryPort clientPort) {
-        return new CreateOrderServiceImpl(orderPort, clientPort);
+    public ListAllProducts listAllProducts(ProductRepository port) {
+        return new ListAllProductsImpl(port);
     }
 
     @Bean
-    public AddItemToOrderService addItemToOrderService(OrderRepositoryPort orderPort, ProductRepositoryPort productPort) {
-        return new AddItemToOrderServiceImpl(orderPort, productPort);
+    public UpdateProduct updateProduct(ProductRepository port) {
+        return new UpdateProductImpl(port);
+    }
+
+    // --- ORDER USE CASE BEANS ---
+    @Bean
+    public CreateOrder createOrder(OrderRepository orderPort, ClientRepository clientPort) {
+        return new CreateOrderImpl(orderPort, clientPort);
+    }
+
+    @Bean
+    public AddItemToOrder addItemToOrder(OrderRepository orderPort, ProductRepository productPort) {
+        return new AddItemToOrderImpl(orderPort, productPort);
     }
     
     @Bean
-    public ConfirmOrderService confirmOrderService(OrderRepositoryPort port) {
-        return new ConfirmOrderServiceImpl(port);
+    public ConfirmOrder confirmOrder(OrderRepository port) {
+        return new ConfirmOrderImpl(port);
     }
     
     @Bean
-    public CancelOrderService cancelOrderService(OrderRepositoryPort port) {
-        return new CancelOrderServiceImpl(port);
+    public CancelOrder cancelOrder(OrderRepository port) {
+        return new CancelOrderImpl(port);
     }
 
     @Bean
-    public FindOrderByIdService findOrderByIdService(OrderRepositoryPort port) {
-        return new FindOrderByIdServiceImpl(port);
+    public FindOrderById findOrderById(OrderRepository port) {
+        return new FindOrderByIdImpl(port);
     }
     
     @Bean
-    public ListAllOrdersService listAllOrdersService(OrderRepositoryPort port) {
-        return new ListAllOrdersServiceImpl(port);
+    public ListAllOrders listAllOrders(OrderRepository port) {
+        return new ListAllOrdersImpl(port);
     }
 }

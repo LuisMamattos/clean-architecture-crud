@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.hexcrud.domain.model.order.Order;
-import com.example.hexcrud.domain.repository.order.OrderRepositoryPort;
+import com.example.hexcrud.domain.repository.order.OrderRepository;
 
 
-public class OrderRepositoryImpl implements OrderRepositoryPort {
+public class OrderRepositoryImpl implements OrderRepository {
 
     private final OrderMongoRepository mongoRepository;
 

@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.hexcrud.domain.model.client.Client;
-import com.example.hexcrud.domain.repository.client.ClientRepositoryPort;
+import com.example.hexcrud.domain.repository.client.ClientRepository;
 
 
-public class ClientRepositoryImpl implements ClientRepositoryPort {
+public class ClientRepositoryImpl implements ClientRepository {
 
     private final ClientMongoRepository repository;
 

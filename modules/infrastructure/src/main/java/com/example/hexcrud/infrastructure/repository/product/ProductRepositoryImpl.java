@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.hexcrud.domain.model.product.Product;
-import com.example.hexcrud.domain.repository.product.ProductRepositoryPort;
+import com.example.hexcrud.domain.repository.product.ProductRepository;
 
 
-public class ProductRepositoryImpl implements ProductRepositoryPort {
+public class ProductRepositoryImpl implements ProductRepository {
 
     private final ProductMongoRepository repository;
 

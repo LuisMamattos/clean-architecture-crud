@@ -18,64 +18,64 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.hexcrud.api.web.dto.product.CreateProductRequest;
 import com.example.hexcrud.api.web.dto.product.ProductResponse;
 import com.example.hexcrud.api.web.dto.product.UpdateProductRequest;
-import com.example.hexcrud.domain.service.product.CreateProductService;
-import com.example.hexcrud.domain.service.product.DeleteProductService;
-import com.example.hexcrud.domain.service.product.FindProductByIdService;
-import com.example.hexcrud.domain.service.product.ListAllProductsService;
-import com.example.hexcrud.domain.service.product.UpdateProductService;
+import com.example.hexcrud.application.usecase.product.CreateProduct;
+import com.example.hexcrud.application.usecase.product.DeleteProduct;
+import com.example.hexcrud.application.usecase.product.FindProductById;
+import com.example.hexcrud.application.usecase.product.ListAllProducts;
+import com.example.hexcrud.application.usecase.product.UpdateProduct;
 
 @RestController
 @RequestMapping("/products")
 public class ProductController {
 
-    private final CreateProductService createProductService;
-    private final UpdateProductService updateProductService;
-    private final DeleteProductService deleteProductService;
-    private final FindProductByIdService findProductByIdService;
-    private final ListAllProductsService listAllProductsService;
+    private final CreateProduct createProduct;
+    private final UpdateProduct updateProduct;
+    private final DeleteProduct deleteProduct;
+    private final FindProductById findProductById;
+    private final ListAllProducts listAllProducts;
 
-    public ProductController(CreateProductService createProductService, UpdateProductService updateProductService,
-                             DeleteProductService deleteProductService, FindProductByIdService findProductByIdService,
-                             ListAllProductsService listAllProductsService) {
-        this.createProductService = createProductService;
-        this.updateProductService = updateProductService;
-        this.deleteProductService = deleteProductService;
-        this.findProductByIdService = findProductByIdService;
-        this.listAllProductsService = listAllProductsService;
+    public ProductController(CreateProduct createProduct, UpdateProduct updateProduct,
+                             DeleteProduct deleteProduct, FindProductById findProductById,
+                             ListAllProducts listAllProducts) {
+        this.createProduct = createProduct;
+        this.updateProduct = updateProduct;
+        this.deleteProduct = deleteProduct;
+        this.findProductById = findProductById;
+        this.listAllProducts = listAllProducts;
     }
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) {
-        var input = new CreateProductService.Input(request.name(), request.price());
-        var createdProduct = createProductService.execute(input);
+        var input = new CreateProduct.Input(request.name(), request.price());
+        var createdProduct = createProduct.execute(input);
         return ResponseEntity.status(HttpStatus.CREATED).body(ProductResponse.fromDomain(createdProduct));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody UpdateProductRequest request) {
-        var input = new UpdateProductService.Input(id, request.name(), request.price());
-        var result = updateProductService.execute(input);
+        var input = new UpdateProduct.Input(id, request.name(), request.price());
+        var result = updateProduct.execute(input);
         return switch (result) {
-            case UpdateProductService.Output.Updated res -> ResponseEntity.ok(ProductResponse.fromDomain(res.product()));
-            case UpdateProductService.Output.NotFound err ->
+            case UpdateProduct.Output.Updated res -> ResponseEntity.ok(ProductResponse.fromDomain(res.product()));
+            case UpdateProduct.Output.NotFound err ->
                     ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Product not found", "id", err.id()));
         };
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable String id) {
-        var input = new DeleteProductService.Input(id);
-        var result = deleteProductService.execute(input);
+        var input = new DeleteProduct.Input(id);
+        var result = deleteProduct.execute(input);
         return switch (result) {
-            case DeleteProductService.Output.Deleted res -> ResponseEntity.noContent().build();
-            case DeleteProductService.Output.NotFound err ->
+            case DeleteProduct.Output.Deleted res -> ResponseEntity.noContent().build();
+            case DeleteProduct.Output.NotFound err ->
                     ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Product not found", "id", err.id()));
         };
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findProductById(@PathVariable String id) {
-        return findProductByIdService.execute(id)
+        return findProductById.execute(id)
                 .map(ProductResponse::fromDomain)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -83,7 +83,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponse>> listAllProducts() {
-        List<ProductResponse> products = listAllProductsService.execute().stream()
+        List<ProductResponse> products = listAllProducts.execute().stream()
                 .map(ProductResponse::fromDomain)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(products);

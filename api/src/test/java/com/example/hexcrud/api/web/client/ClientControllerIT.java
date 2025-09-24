@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:test.properties") 
+@TestPropertySource(locations = "classpath:test.properties")
 class ClientControllerIT {
 
     @Autowired
@@ -33,15 +33,16 @@ class ClientControllerIT {
 
     @BeforeEach
     void setUp() {
-        // Garante que a coleção de clientes esteja vazia antes de cada teste.
         clientMongoRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("Should create a client successfully and return status 201")
-    void shouldCreateClientSuccessfully() throws Exception {
+    @DisplayName("Given a valid new client, when creating, then should return status 201 and the created client")
+    void given_aValidNewClient_when_creating_then_shouldReturnStatus201AndTheCreatedClient() throws Exception {
+        // Given
         var createClientRequest = new CreateClientRequest("Test Client", "test@example.com");
 
+        // When & Then
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createClientRequest)))
@@ -52,17 +53,19 @@ class ClientControllerIT {
     }
 
     @Test
-    @DisplayName("Should fail to create a client with a duplicate email and return status 409")
-    void shouldFailToCreateClientWithDuplicateEmail() throws Exception {
-        // Arrange: Create an initial client to occupy the email address.
+    @DisplayName("Given an existing email, when creating a client with the same email, then should return status 409")
+    void given_anExistingEmail_when_creatingClientWithSameEmail_then_shouldReturnStatus409() throws Exception {
+        // Given: Um cliente já existente no banco de dados.
         var initialRequest = new CreateClientRequest("First Client", "duplicate@example.com");
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(initialRequest)))
                 .andExpect(status().isCreated());
 
-        // Act & Assert: Attempt to create a second client with the same email.
+        // When: Tentamos criar um segundo cliente com o mesmo e-mail.
         var duplicateRequest = new CreateClientRequest("Second Client", "duplicate@example.com");
+        
+        // Then: A API deve retornar um erro de conflito.
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(duplicateRequest)))
