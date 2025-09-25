@@ -24,6 +24,8 @@ import com.example.hexcrud.application.usecase.client.FindClientById;
 import com.example.hexcrud.application.usecase.client.ListAllClients;
 import com.example.hexcrud.application.usecase.client.UpdateClient;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/clients")
 public class ClientController {
@@ -45,7 +47,7 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createClient(@RequestBody CreateClientRequest request) {
+    public ResponseEntity<?> createClient(@RequestBody @Valid CreateClientRequest request) {
         var input = new CreateClient.Input(request.name(), request.email());
         var result = createClient.execute(input);
 
@@ -58,7 +60,7 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClient(@PathVariable String id, @RequestBody UpdateClientRequest request) {
+    public ResponseEntity<?> updateClient(@PathVariable String id, @RequestBody @Valid UpdateClientRequest request) {
         var input = new UpdateClient.Input(id, request.name(), request.email());
         var result = updateClient.execute(input);
 

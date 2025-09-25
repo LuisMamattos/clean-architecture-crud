@@ -9,12 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.hexcrud.api.web.dto.client.CreateClientRequest;
-import com.example.hexcrud.infrastructure.repository.client.ClientMongoRepository;
+import com.example.hexcrud.infrastructure.repository.ClientRepositoryImpl; 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -28,21 +29,22 @@ class ClientControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
+    
     @Autowired
-    private ClientMongoRepository clientMongoRepository;
+    private ClientRepositoryImpl clientRepository;
 
     @BeforeEach
-    void setUp() {
-        clientMongoRepository.deleteAll();
+    void setUp() {       
+        clientRepository.deleteAll();
     }
 
     @Test
     @DisplayName("Given a valid new client, when creating, then should return status 201 and the created client")
     void given_aValidNewClient_when_creating_then_shouldReturnStatus201AndTheCreatedClient() throws Exception {
-        // Given
+        // Dado
         var createClientRequest = new CreateClientRequest("Test Client", "test@example.com");
 
-        // When & Then
+        // Quando & Então
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createClientRequest)))
@@ -55,17 +57,17 @@ class ClientControllerIT {
     @Test
     @DisplayName("Given an existing email, when creating a client with the same email, then should return status 409")
     void given_anExistingEmail_when_creatingClientWithSameEmail_then_shouldReturnStatus409() throws Exception {
-        // Given: Um cliente já existente no banco de dados.
+        // Dado: Um cliente já existente no banco de dados.
         var initialRequest = new CreateClientRequest("First Client", "duplicate@example.com");
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(initialRequest)))
                 .andExpect(status().isCreated());
 
-        // When: Tentamos criar um segundo cliente com o mesmo e-mail.
+        // Quando: Tentamos criar um segundo cliente com o mesmo e-mail.
         var duplicateRequest = new CreateClientRequest("Second Client", "duplicate@example.com");
         
-        // Then: A API deve retornar um erro de conflito.
+        // Então: A API deve retornar um erro de conflito.
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(duplicateRequest)))

@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.hexcrud.api.web.dto.product.UpdateProductRequest;
 import com.example.hexcrud.domain.model.product.Product;
-import com.example.hexcrud.infrastructure.repository.product.ProductMongoRepository;
+import com.example.hexcrud.infrastructure.repository.ProductRepositoryImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -30,31 +30,29 @@ class ProductControllerIT {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ProductMongoRepository productMongoRepository;
+    private ProductRepositoryImpl productRepository;
 
     @BeforeEach
     void setUp() {
-        productMongoRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
     @DisplayName("Should update a product successfully and return status 200")
     void shouldUpdateProductSuccessfully() throws Exception {
-        // Arrange: Primeiro, crie e salve um produto para garantir que ele exista.
-        Product existingProduct = productMongoRepository.save(new Product("Old Name", 10.0));
+        // Arrange: Crie um produto usando a nova dependência
+        Product existingProduct = productRepository.save(new Product("Old Name", 10.0));
         String productId = existingProduct.getId();
 
         var updateRequest = new UpdateProductRequest("New Name", 99.99);
 
         // Act & Assert
         mockMvc.perform(
-                // Simula um PUT para /products/{id}.
-                // O ID do produto é passado como uma variável para o método put().
                 put("/products/{id}", productId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest))
                 )
-                .andExpect(status().isOk()) // Para um update bem-sucedido, esperamos 200 OK.
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(productId))
                 .andExpect(jsonPath("$.name").value("New Name"))
                 .andExpect(jsonPath("$.price").value(99.99));
@@ -64,14 +62,14 @@ class ProductControllerIT {
     @DisplayName("Should return status 404 when trying to update a non-existent product")
     void shouldReturnNotFoundWhenUpdatingNonExistentProduct() throws Exception {
         // Arrange
-        String nonExistentId = "60d5ec49e9b8a22b0c14b581"; // Um ID aleatório que não existe
+        String nonExistentId = "60d5ec49e9b8a22b0c14b581"; // Um ID MongoDB válido, mas inexistente
         var updateRequest = new UpdateProductRequest("New Name", 99.99);
 
         // Act & Assert
         mockMvc.perform(put("/products/{id}", nonExistentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isNotFound()) // Esperamos um 404 Not Found.
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Product not found"));
     }
 }

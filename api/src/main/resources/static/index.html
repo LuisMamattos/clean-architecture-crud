@@ -18,7 +18,10 @@
       }
       .container {
         width: 100%;
-        max-width: 800px;
+
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
       }
       h2 {
         color: #2f3640;
@@ -30,8 +33,10 @@
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         padding: 25px;
-        margin-bottom: 30px;
+
         transition: transform 0.2s;
+
+        flex: 1;
       }
       .form-group {
         display: flex;
@@ -134,6 +139,13 @@
         margin-top: 15px;
         border-top: 1px solid #dcdde1;
         padding-top: 15px;
+      }
+      #clientList,
+      #productList,
+      #orderList {
+        max-height: 650px; /* Define a altura máxima da área da lista */
+        overflow-y: auto; /* Adiciona o scroll vertical APENAS se necessário */
+        padding-right: 10px; /* Evita que o scrollbar sobreponha o conteúdo */
       }
     </style>
   </head>

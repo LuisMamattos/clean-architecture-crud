@@ -8,35 +8,12 @@ import com.example.hexcrud.application.usecase.product.*;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
 import com.example.hexcrud.domain.repository.order.OrderRepository;
 import com.example.hexcrud.domain.repository.product.ProductRepository;
-// Imports para a camada de infraestrutura
-import com.example.hexcrud.infrastructure.repository.client.ClientMongoRepository;
-import com.example.hexcrud.infrastructure.repository.client.ClientRepositoryImpl;
-import com.example.hexcrud.infrastructure.repository.order.OrderMongoRepository;
-import com.example.hexcrud.infrastructure.repository.order.OrderRepositoryImpl;
-import com.example.hexcrud.infrastructure.repository.product.ProductMongoRepository;
-import com.example.hexcrud.infrastructure.repository.product.ProductRepositoryImpl;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class BeanConfiguration {
-
-    // --- REPOSITORY BEANS ---
-    @Bean
-    public ClientRepository clientRepository(ClientMongoRepository repo) {
-        return new ClientRepositoryImpl(repo);
-    }
-
-    @Bean
-    public ProductRepository productRepository(ProductMongoRepository repo) {
-        return new ProductRepositoryImpl(repo);
-    }
-
-    @Bean
-    public OrderRepository orderRepository(OrderMongoRepository repo) {
-        return new OrderRepositoryImpl(repo);
-    }
+public class BeanConfiguration {      
 
     // --- CLIENT USE CASE BEANS ---
     @Bean

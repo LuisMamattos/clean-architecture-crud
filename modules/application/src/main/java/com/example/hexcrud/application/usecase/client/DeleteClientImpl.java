@@ -14,7 +14,7 @@ public class DeleteClientImpl implements DeleteClient {
     public Output execute(Input input) {
         return clientRepository.findById(input.id())
                 .map(client -> {
-                    clientRepository.delete(input.id());
+                    clientRepository.deleteById(input.id());
                     return (Output) new Output.Deleted();
                 })
                 .orElse(new Output.NotFound(input.id()));
