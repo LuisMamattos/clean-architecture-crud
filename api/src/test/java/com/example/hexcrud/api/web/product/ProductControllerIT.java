@@ -15,8 +15,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.hexcrud.api.web.dto.product.UpdateProductRequest;
 import com.example.hexcrud.domain.model.product.Product;
-import com.example.hexcrud.infrastructure.repository.ProductRepositoryImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.data.mongodb.core.MongoTemplate; 
+import com.example.hexcrud.domain.repository.product.ProductRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,11 +32,14 @@ class ProductControllerIT {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ProductRepositoryImpl productRepository;
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @BeforeEach
     void setUp() {
-        productRepository.deleteAll();
+         mongoTemplate.dropCollection(Product.class);
     }
 
     @Test

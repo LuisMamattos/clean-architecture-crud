@@ -15,8 +15,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.hexcrud.api.web.dto.client.CreateClientRequest;
-import com.example.hexcrud.infrastructure.repository.ClientRepositoryImpl; 
+import com.example.hexcrud.domain.model.client.Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.data.mongodb.core.MongoTemplate; 
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,13 +31,12 @@ class ClientControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
-    
     @Autowired
-    private ClientRepositoryImpl clientRepository;
+    private MongoTemplate mongoTemplate;
 
     @BeforeEach
-    void setUp() {       
-        clientRepository.deleteAll();
+    void setUp() {
+        mongoTemplate.dropCollection(Client.class);
     }
 
     @Test
@@ -66,7 +67,7 @@ class ClientControllerIT {
 
         // Quando: Tentamos criar um segundo cliente com o mesmo e-mail.
         var duplicateRequest = new CreateClientRequest("Second Client", "duplicate@example.com");
-        
+
         // Então: A API deve retornar um erro de conflito.
         mockMvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
