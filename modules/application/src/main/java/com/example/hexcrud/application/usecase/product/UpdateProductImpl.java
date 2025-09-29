@@ -1,7 +1,7 @@
 package com.example.hexcrud.application.usecase.product;
 
-import com.example.hexcrud.application.exception.BusinessRuleException;
-import com.example.hexcrud.application.exception.ResourceNotFoundException;
+import com.example.hexcrud.domain.exception.BusinessRuleException;
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.model.product.Product;
 import com.example.hexcrud.domain.repository.product.ProductRepository;
 

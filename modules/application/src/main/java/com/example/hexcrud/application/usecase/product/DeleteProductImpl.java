@@ -1,6 +1,6 @@
 package com.example.hexcrud.application.usecase.product;
 
-import com.example.hexcrud.application.exception.ResourceNotFoundException;
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.repository.product.ProductRepository;
 
 public class DeleteProductImpl implements DeleteProduct {

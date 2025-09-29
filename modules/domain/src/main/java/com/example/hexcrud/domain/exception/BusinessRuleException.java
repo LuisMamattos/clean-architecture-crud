@@ -1,4 +1,4 @@
-package com.example.hexcrud.application.exception;
+package com.example.hexcrud.domain.exception;
 
 public class BusinessRuleException extends RuntimeException {
     public BusinessRuleException(String message) {

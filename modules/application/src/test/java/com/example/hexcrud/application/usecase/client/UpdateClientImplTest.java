@@ -16,8 +16,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.hexcrud.application.exception.BusinessRuleException;
-import com.example.hexcrud.application.exception.ResourceNotFoundException;
+import com.example.hexcrud.domain.exception.BusinessRuleException;
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.model.client.Client;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
 

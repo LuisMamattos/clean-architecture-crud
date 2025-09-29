@@ -17,8 +17,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.example.hexcrud.api.web.dto.error.ErrorResponse;
-import com.example.hexcrud.application.exception.BusinessRuleException;
-import com.example.hexcrud.application.exception.ResourceNotFoundException;
+import com.example.hexcrud.domain.exception.BusinessRuleException;
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {

@@ -1,6 +1,6 @@
 package com.example.hexcrud.application.usecase.client;
 
-import com.example.hexcrud.application.exception.ResourceNotFoundException;
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
 
 public class DeleteClientImpl implements DeleteClient {
