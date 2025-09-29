@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,7 @@ class AddItemToOrderImplTest {
         var input = new AddItemToOrder.Input("order-123", "product-abc", 2);
         
         Order orderFromDb = Order.create("client-xyz");
-        Product productFromDb = new Product("Test Product", 50.0);
+        Product productFromDb = new Product("Test Product", BigDecimal.valueOf(50.00));
         productFromDb.setId("product-abc");//------------------------------
 
         // Configuração dos Mocks

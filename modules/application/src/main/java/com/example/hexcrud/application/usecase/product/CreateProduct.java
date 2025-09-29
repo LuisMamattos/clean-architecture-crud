@@ -1,8 +1,11 @@
 package com.example.hexcrud.application.usecase.product;
 
-import com.example.hexcrud.domain.model.product.Product;
+import java.math.BigDecimal;
+
+import com.example.hexcrud.domain.model.product.Product; // Import necessário
 
 public interface CreateProduct {
-    record Input(String name, double price) {}
+    record Input(String name, BigDecimal price) {} // Alterado de double para BigDecimal
+    
     Product execute(Input input);
 }

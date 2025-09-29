@@ -1,11 +1,14 @@
 package com.example.hexcrud.api.web.product;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,10 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.hexcrud.api.web.dto.product.UpdateProductRequest;
 import com.example.hexcrud.domain.model.product.Product;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.springframework.data.mongodb.core.MongoTemplate; 
 import com.example.hexcrud.domain.repository.product.ProductRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,10 +47,10 @@ class ProductControllerIT {
     @DisplayName("Should update a product successfully and return status 200")
     void shouldUpdateProductSuccessfully() throws Exception {
         // Arrange: Crie um produto usando a nova dependência
-        Product existingProduct = productRepository.save(new Product("Old Name", 10.0));
+        Product existingProduct = productRepository.save(new Product("Old Name", BigDecimal.valueOf(10.00)));
         String productId = existingProduct.getId();
 
-        var updateRequest = new UpdateProductRequest("New Name", 99.99);
+        var updateRequest = new UpdateProductRequest("New Name", BigDecimal.valueOf(99.00));
 
         // Act & Assert
         mockMvc.perform(
@@ -60,7 +61,7 @@ class ProductControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(productId))
                 .andExpect(jsonPath("$.name").value("New Name"))
-                .andExpect(jsonPath("$.price").value(99.99));
+                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(99.00)));
     }
 
     @Test
@@ -68,7 +69,7 @@ class ProductControllerIT {
     void shouldReturnNotFoundWhenUpdatingNonExistentProduct() throws Exception {
         // Arrange
         String nonExistentId = "60d5ec49e9b8a22b0c14b581"; // Um ID MongoDB válido, mas inexistente
-        var updateRequest = new UpdateProductRequest("New Name", 99.99);
+        var updateRequest = new UpdateProductRequest("New Name", BigDecimal.valueOf(99.00));
 
         // Act & Assert
         mockMvc.perform(put("/products/{id}", nonExistentId)

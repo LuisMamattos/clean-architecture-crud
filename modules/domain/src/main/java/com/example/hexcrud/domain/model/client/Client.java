@@ -12,6 +12,12 @@ public class Client {
         this.email = email;
     }
 
+    public Client(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
     public void updateDetails(String newName, String newEmail) {
         this.name = newName;
         this.email = newEmail;

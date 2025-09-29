@@ -1,5 +1,6 @@
 package com.example.hexcrud.application.usecase.client;
 
+import com.example.hexcrud.application.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
 
 public class DeleteClientImpl implements DeleteClient {
@@ -11,12 +12,12 @@ public class DeleteClientImpl implements DeleteClient {
     }
 
     @Override
-    public Output execute(Input input) {
-        return clientRepository.findById(input.id())
-                .map(client -> {
-                    clientRepository.deleteById(input.id());
-                    return (Output) new Output.Deleted();
-                })
-                .orElse(new Output.NotFound(input.id()));
+    public void execute(Input input) {
+        
+        if (!clientRepository.existsById(input.id())) {
+            throw new ResourceNotFoundException("Client not found with ID: " + input.id());
+        }
+        //Caminho Feliz
+        clientRepository.deleteById(input.id());
     }
 }

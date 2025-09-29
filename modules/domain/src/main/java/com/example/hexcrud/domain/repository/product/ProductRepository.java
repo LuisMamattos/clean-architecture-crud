@@ -10,5 +10,8 @@ public interface ProductRepository {
     Optional<Product> findById(String id);
     List<Product> findAll();
     void deleteById(String id);
+    boolean existsById(String id);
+    boolean existsByName(String email);
+    boolean existsByNameAndIdNot(String email, String id);
 
 }

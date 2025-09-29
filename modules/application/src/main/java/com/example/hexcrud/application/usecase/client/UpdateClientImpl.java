@@ -1,9 +1,10 @@
 package com.example.hexcrud.application.usecase.client;
 
-import java.util.Optional;
-
+import com.example.hexcrud.application.exception.BusinessRuleException;
+import com.example.hexcrud.application.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.model.client.Client;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
+// O import do Optional não é mais necessário para esta lógica específica.
 
 public class UpdateClientImpl implements UpdateClient {
 
@@ -14,24 +15,16 @@ public class UpdateClientImpl implements UpdateClient {
     }
 
     @Override
-    public Output execute(Input input) {
-        Optional<Client> optionalClient = clientRepository.findById(input.id());
-        if (optionalClient.isEmpty()) {
-            return new Output.NotFound(input.id());
+    public Client execute(Input input) {
+        Client clientToUpdate = clientRepository.findById(input.id())
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + input.id()));
+
+        if (clientRepository.existsByEmailAndIdNot(input.email(), clientToUpdate.getId())) {
+            throw new BusinessRuleException("Email already in use by another client: " + input.email());
         }
 
-        Client clientToUpdate = optionalClient.get();
-
-        if (!clientToUpdate.getEmail().equalsIgnoreCase(input.newEmail())) {
-            Optional<Client> existingClientWithNewEmail = clientRepository.findByEmail(input.newEmail());
-            if (existingClientWithNewEmail.isPresent()) {
-                return new Output.EmailAlreadyExists(input.newEmail());
-            }
-        }
-
-        clientToUpdate.updateDetails(input.newName(), input.newEmail());
-        Client updatedClient = clientRepository.save(clientToUpdate);
-
-        return new Output.Updated(updatedClient);
+        clientToUpdate.updateDetails(input.name(), input.email());
+        
+        return clientRepository.save(clientToUpdate);
     }
 }

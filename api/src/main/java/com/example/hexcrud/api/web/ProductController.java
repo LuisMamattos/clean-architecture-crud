@@ -1,30 +1,17 @@
 package com.example.hexcrud.api.web;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.hexcrud.api.web.dto.product.CreateProductRequest;
 import com.example.hexcrud.api.web.dto.product.ProductResponse;
 import com.example.hexcrud.api.web.dto.product.UpdateProductRequest;
-import com.example.hexcrud.application.usecase.product.CreateProduct;
-import com.example.hexcrud.application.usecase.product.DeleteProduct;
-import com.example.hexcrud.application.usecase.product.FindProductById;
-import com.example.hexcrud.application.usecase.product.ListAllProducts;
-import com.example.hexcrud.application.usecase.product.UpdateProduct;
-
+import com.example.hexcrud.application.usecase.product.*;
+import com.example.hexcrud.domain.model.product.Product;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -49,38 +36,28 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) {
         var input = new CreateProduct.Input(request.name(), request.price());
-        var createdProduct = createProduct.execute(input);
+        Product createdProduct = createProduct.execute(input);
         return ResponseEntity.status(HttpStatus.CREATED).body(ProductResponse.fromDomain(createdProduct));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody @Valid UpdateProductRequest request) {
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id, @RequestBody @Valid UpdateProductRequest request) {
         var input = new UpdateProduct.Input(id, request.name(), request.price());
-        var result = updateProduct.execute(input);
-        return switch (result) {
-            case UpdateProduct.Output.Updated res -> ResponseEntity.ok(ProductResponse.fromDomain(res.product()));
-            case UpdateProduct.Output.NotFound err ->
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Product not found", "id", err.id()));
-        };
+        Product updatedProduct = updateProduct.execute(input);
+        return ResponseEntity.ok(ProductResponse.fromDomain(updatedProduct));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         var input = new DeleteProduct.Input(id);
-        var result = deleteProduct.execute(input);
-        return switch (result) {
-            case DeleteProduct.Output.Deleted res -> ResponseEntity.noContent().build();
-            case DeleteProduct.Output.NotFound err ->
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Product not found", "id", err.id()));
-        };
+        deleteProduct.execute(input);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findProductById(@PathVariable String id) {
-        return findProductById.execute(id)
-                .map(ProductResponse::fromDomain)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Product product = findProductById.execute(id);
+        return ResponseEntity.ok(ProductResponse.fromDomain(product));
     }
 
     @GetMapping

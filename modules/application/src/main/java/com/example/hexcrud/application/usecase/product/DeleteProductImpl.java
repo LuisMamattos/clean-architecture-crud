@@ -1,4 +1,6 @@
 package com.example.hexcrud.application.usecase.product;
+
+import com.example.hexcrud.application.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.repository.product.ProductRepository;
 
 public class DeleteProductImpl implements DeleteProduct {
@@ -10,12 +12,10 @@ public class DeleteProductImpl implements DeleteProduct {
     }
 
     @Override
-    public Output execute(Input input) {
-        return productRepository.findById(input.id())
-                .map(product -> {
-                    productRepository.deleteById(input.id());
-                    return (Output) new Output.Deleted();
-                })
-                .orElse(new Output.NotFound(input.id()));
+    public void execute(Input input) {
+        if (!productRepository.existsById(input.id())) {
+            throw new ResourceNotFoundException("Product not found with ID: " + input.id());
+        }
+        productRepository.deleteById(input.id());
     }
 }

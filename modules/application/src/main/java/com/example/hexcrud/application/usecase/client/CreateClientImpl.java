@@ -1,7 +1,6 @@
 package com.example.hexcrud.application.usecase.client;
 
-import java.util.Optional;
-
+import com.example.hexcrud.application.exception.BusinessRuleException;
 import com.example.hexcrud.domain.model.client.Client;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
 
@@ -14,15 +13,16 @@ public class CreateClientImpl implements CreateClient {
     }
 
     @Override
-    public Output execute(Input input) {
-        Optional<Client> existingClient = clientRepository.findByEmail(input.email());
-        if (existingClient.isPresent()) {
-            return new Output.EmailAlreadyExists(input.email());
+    // A assinatura agora corresponde à interface e retorna 'Client'
+    public Client execute(Input input) {
+        // A lógica de validação agora lança a exceção
+        if (clientRepository.existsByEmail(input.email())) {
+            throw new BusinessRuleException("Email already in use: " + input.email());
         }
 
         Client newClient = new Client(input.name(), input.email());
-        Client savedClient = clientRepository.save(newClient);
-
-        return new Output.Created(savedClient);
+        
+        // A lógica de sucesso agora retorna a entidade salva diretamente
+        return clientRepository.save(newClient);
     }
 }

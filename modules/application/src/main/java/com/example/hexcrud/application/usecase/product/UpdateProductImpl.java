@@ -1,6 +1,7 @@
 package com.example.hexcrud.application.usecase.product;
-import java.util.Optional;
 
+import com.example.hexcrud.application.exception.BusinessRuleException;
+import com.example.hexcrud.application.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.model.product.Product;
 import com.example.hexcrud.domain.repository.product.ProductRepository;
 
@@ -12,16 +13,15 @@ public class UpdateProductImpl implements UpdateProduct {
     }
 
     @Override
-    public Output execute(Input input) {
-        Optional<Product> optionalProduct = productRepository.findById(input.id());
-        if (optionalProduct.isEmpty()) {
-            return new Output.NotFound(input.id());
+    public Product execute(Input input) {
+        Product productToUpdate = productRepository.findById(input.id())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + input.id()));
+
+        if (productRepository.existsByNameAndIdNot(input.name(), productToUpdate.getId())) {
+            throw new BusinessRuleException("Product with name '" + input.name() + "' already exists.");
         }
 
-        Product productToUpdate = optionalProduct.get();
-        productToUpdate.updateDetails(input.newName(), input.newPrice());
-        Product updatedProduct = productRepository.save(productToUpdate);
-
-        return new Output.Updated(updatedProduct);
+        productToUpdate.updateDetails(input.name(), input.price());
+        return productRepository.save(productToUpdate);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.hexcrud.api.web;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,7 @@ import com.example.hexcrud.application.usecase.client.DeleteClient;
 import com.example.hexcrud.application.usecase.client.FindClientById;
 import com.example.hexcrud.application.usecase.client.ListAllClients;
 import com.example.hexcrud.application.usecase.client.UpdateClient;
+import com.example.hexcrud.domain.model.client.Client;
 
 import jakarta.validation.Valid;
 
@@ -47,51 +47,30 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createClient(@RequestBody @Valid CreateClientRequest request) {
+    public ResponseEntity<ClientResponse> createClient(@RequestBody @Valid CreateClientRequest request) {
         var input = new CreateClient.Input(request.name(), request.email());
-        var result = createClient.execute(input);
-
-        return switch (result) {
-            case CreateClient.Output.Created res ->
-                    ResponseEntity.status(HttpStatus.CREATED).body(ClientResponse.fromDomain(res.client()));
-            case CreateClient.Output.EmailAlreadyExists err ->
-                    ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Email already exists", "email", err.email()));
-        };
+        Client createdClient = createClient.execute(input);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ClientResponse.fromDomain(createdClient));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClient(@PathVariable String id, @RequestBody @Valid UpdateClientRequest request) {
+    public ResponseEntity<ClientResponse> updateClient(@PathVariable String id, @RequestBody @Valid UpdateClientRequest request) {
         var input = new UpdateClient.Input(id, request.name(), request.email());
-        var result = updateClient.execute(input);
-
-        return switch (result) {
-            case UpdateClient.Output.Updated res ->
-                    ResponseEntity.ok(ClientResponse.fromDomain(res.client()));
-            case UpdateClient.Output.NotFound err ->
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Client not found", "id", err.id()));
-            case UpdateClient.Output.EmailAlreadyExists err ->
-                    ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Email already exists", "email", err.email()));
-        };
+        Client updatedClient = updateClient.execute(input);
+        return ResponseEntity.ok(ClientResponse.fromDomain(updatedClient));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteClient(@PathVariable String id) {
+    public ResponseEntity<Void> deleteClient(@PathVariable String id) {
         var input = new DeleteClient.Input(id);
-        var result = deleteClient.execute(input);
-
-        return switch (result) {
-            case DeleteClient.Output.Deleted res -> ResponseEntity.noContent().build();
-            case DeleteClient.Output.NotFound err ->
-                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Client not found", "id", err.id()));
-        };
+        deleteClient.execute(input);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClientResponse> findClient(@PathVariable String id) {
-        return findClientById.execute(id)
-                .map(ClientResponse::fromDomain)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Client client = findClientById.execute(id);
+        return ResponseEntity.ok(ClientResponse.fromDomain(client));
     }
 
     @GetMapping

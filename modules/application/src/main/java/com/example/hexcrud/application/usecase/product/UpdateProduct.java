@@ -1,14 +1,12 @@
 package com.example.hexcrud.application.usecase.product;
 
-import com.example.hexcrud.domain.model.product.Product;
+import java.math.BigDecimal;
+ 
+import com.example.hexcrud.domain.model.product.Product; 
 
 public interface UpdateProduct {
-    record Input(String id, String newName, double newPrice) {}
 
-    sealed interface Output {
-        record Updated(Product product) implements Output {}
-        record NotFound(String id) implements Output {}
-    }
-
-    Output execute(Input input);
+    record Input(String id, String name, BigDecimal price) {} 
+    Product execute(Input input);  
+    
 }
