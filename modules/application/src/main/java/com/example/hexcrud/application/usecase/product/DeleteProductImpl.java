@@ -13,7 +13,7 @@ public class DeleteProductImpl implements DeleteProduct {
     public Output execute(Input input) {
         return productRepository.findById(input.id())
                 .map(product -> {
-                    productRepository.delete(input.id());
+                    productRepository.deleteById(input.id());
                     return (Output) new Output.Deleted();
                 })
                 .orElse(new Output.NotFound(input.id()));

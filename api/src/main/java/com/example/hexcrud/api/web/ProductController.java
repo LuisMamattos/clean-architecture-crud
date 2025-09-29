@@ -24,6 +24,8 @@ import com.example.hexcrud.application.usecase.product.FindProductById;
 import com.example.hexcrud.application.usecase.product.ListAllProducts;
 import com.example.hexcrud.application.usecase.product.UpdateProduct;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -45,14 +47,14 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) {
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) {
         var input = new CreateProduct.Input(request.name(), request.price());
         var createdProduct = createProduct.execute(input);
         return ResponseEntity.status(HttpStatus.CREATED).body(ProductResponse.fromDomain(createdProduct));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody UpdateProductRequest request) {
+    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody @Valid UpdateProductRequest request) {
         var input = new UpdateProduct.Input(id, request.name(), request.price());
         var result = updateProduct.execute(input);
         return switch (result) {

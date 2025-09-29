@@ -9,6 +9,6 @@ public interface ClientRepository {
     Client save(Client client);
     Optional<Client> findById(String id);
     List<Client> findAll();
-    void delete(String id);
+    void deleteById(String id);
     Optional<Client> findByEmail(String email);
 }
