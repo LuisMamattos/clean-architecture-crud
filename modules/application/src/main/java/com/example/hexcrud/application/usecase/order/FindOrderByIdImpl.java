@@ -1,6 +1,6 @@
 package com.example.hexcrud.application.usecase.order;
-import java.util.Optional;
 
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.model.order.Order;
 import com.example.hexcrud.domain.repository.order.OrderRepository;
 
@@ -12,7 +12,8 @@ public class FindOrderByIdImpl implements FindOrderById {
     }
 
     @Override
-    public Optional<Order> execute(String orderId) {
-        return orderRepository.findById(orderId);
+    public Order execute(String orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
     }
 }

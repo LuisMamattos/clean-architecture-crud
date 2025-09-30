@@ -11,7 +11,5 @@ public interface ProductRepository {
     List<Product> findAll();
     void deleteById(String id);
     boolean existsById(String id);
-    boolean existsByName(String email);
-    boolean existsByNameAndIdNot(String email, String id);
-
+    Optional<Product> findByName(String name); // Adicionado para substituir o "existsByName"
 }

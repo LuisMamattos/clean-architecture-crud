@@ -1,2 +1,6 @@
 package com.example.hexcrud.api.web.dto.order;
-public record CreateOrderRequest(String clientId) {}
+
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateOrderRequest(@NotBlank String clientId) {
+}

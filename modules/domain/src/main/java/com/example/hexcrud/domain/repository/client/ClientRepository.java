@@ -10,8 +10,6 @@ public interface ClientRepository {
     Optional<Client> findById(String id);
     List<Client> findAll();
     void deleteById(String id);
-    Optional<Client> findByEmail(String email);
     boolean existsById(String id);
-    boolean existsByEmail(String email);
-    boolean existsByEmailAndIdNot(String email, String id);
+    Optional<Client> findByEmail(String email); 
 }

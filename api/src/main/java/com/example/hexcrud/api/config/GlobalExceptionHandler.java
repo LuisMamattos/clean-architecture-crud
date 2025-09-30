@@ -18,12 +18,28 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.example.hexcrud.api.web.dto.error.ErrorResponse;
 import com.example.hexcrud.domain.exception.BusinessRuleException;
+import com.example.hexcrud.domain.exception.DomainValidationException;
 import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    //(422 Unprocessable Entity) 
+    @ExceptionHandler(DomainValidationException.class)
+    public ResponseEntity<ErrorResponse> handleDomainValidationException(
+            DomainValidationException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(),
+                ex.getMessage(),
+                ((ServletWebRequest) request).getRequest().getRequestURI(),
+                Instant.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
 
     //(404 Not Found)     
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -60,7 +76,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-        // Extrai as mensagens de erro de validação e as junta em uma única string.
+        //mensagens de erro de validação ,junta em uma string.
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining("; "));

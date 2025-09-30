@@ -13,11 +13,15 @@ public class CreateProductImpl implements CreateProduct {
 
     @Override
     public Product execute(Input input) {
-        if (productRepository.existsByName(input.name())) {
+        // 1. ORCHESTRATE
+        if (productRepository.findByName(input.name()).isPresent()) {
             throw new BusinessRuleException("Product with name '" + input.name() + "' already exists.");
         }
 
-        Product newProduct = new Product(input.name(), input.price());
+        // 2. EXECUTE
+        Product newProduct = Product.create(input.name(), input.price());
+
+        // 3. SAVE
         return productRepository.save(newProduct);
     }
 }

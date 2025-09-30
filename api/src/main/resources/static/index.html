@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>ORDERS</title>
+    <title>HEXCRUD - Management</title>
     <style>
       * {
         box-sizing: border-box;
@@ -18,7 +18,7 @@
       }
       .container {
         width: 100%;
-
+        max-width: 1800px;
         display: flex;
         gap: 30px;
         align-items: flex-start;
@@ -31,11 +31,8 @@
       .card {
         background: #fff;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         padding: 25px;
-
-        transition: transform 0.2s;
-
         flex: 1;
       }
       .form-group {
@@ -143,9 +140,9 @@
       #clientList,
       #productList,
       #orderList {
-        max-height: 650px; /* Define a altura máxima da área da lista */
-        overflow-y: auto; /* Adiciona o scroll vertical APENAS se necessário */
-        padding-right: 10px; /* Evita que o scrollbar sobreponha o conteúdo */
+        max-height: 650px;
+        overflow-y: auto;
+        padding-right: 10px;
       }
     </style>
   </head>
@@ -202,6 +199,11 @@
         await fetchAndCacheProducts();
         populateClientDropdown();
       });
+
+      async function handleApiError(response) {
+        const error = await response.json();
+        alert(`Error: ${error.message}`); // Padronizado para usar o campo 'message'
+      }
 
       async function fetchAndCacheClients() {
         const response = await fetch("/clients");
@@ -262,7 +264,9 @@
         document.getElementById("clientName").value = client.name;
         document.getElementById("clientEmail").value = client.email;
         currentClientId = client.id;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        document
+          .querySelector(".card:first-child")
+          .scrollIntoView({ behavior: "smooth" });
       }
 
       async function registerClient() {
@@ -285,8 +289,7 @@
           document.getElementById("clientName").value = "";
           document.getElementById("clientEmail").value = "";
         } else {
-          const error = await response.json();
-          alert(`Error: ${error.error}`);
+          await handleApiError(response);
         }
       }
 
@@ -311,8 +314,7 @@
           document.getElementById("clientEmail").value = "";
           currentClientId = null;
         } else {
-          const error = await response.json();
-          alert(`Error: ${error.error}`);
+          await handleApiError(response);
         }
       }
 
@@ -326,27 +328,30 @@
           if (document.getElementById("clientList").innerHTML)
             renderClientList();
         } else {
-          alert("Error deleting client.");
+          await handleApiError(response);
         }
       }
 
+      // --- PRODUCT FUNCTIONS ---
       function renderProductList() {
         const listElement = document.getElementById("productList");
         listElement.innerHTML = "";
         allProducts.forEach((product) => {
           const listItem = document.createElement("li");
           listItem.innerHTML = `
-                <div class="entity-header">
-                    <span>${product.name} - $${product.price.toFixed(2)}</span>
-                    <div class="buttons">
-                        <button class="update-btn" onclick="fillProductForm('${
-                          product.id
-                        }')">Edit</button>
-                        <button class="delete-btn" onclick="deleteProduct('${
-                          product.id
-                        }')">Delete</button>
-                    </div>
-                </div>`;
+            <div class="entity-header">
+              <span>${product.name} - $${Number(product.price).toFixed(
+            2
+          )}</span>
+              <div class="buttons">
+                <button class="update-btn" onclick="fillProductForm('${
+                  product.id
+                }')">Edit</button>
+                <button class="delete-btn" onclick="deleteProduct('${
+                  product.id
+                }')">Delete</button>
+              </div>
+            </div>`;
           listElement.appendChild(listItem);
         });
         document.getElementById("toggleProductsBtn").textContent = "Hide List";
@@ -368,6 +373,9 @@
         document.getElementById("productName").value = product.name;
         document.getElementById("productPrice").value = product.price;
         currentProductId = product.id;
+        document
+          .querySelector(".card:nth-child(2)")
+          .scrollIntoView({ behavior: "smooth" });
       }
 
       async function submitProduct() {
@@ -392,7 +400,7 @@
           document.getElementById("productName").value = "";
           document.getElementById("productPrice").value = "";
         } else {
-          alert("Error registering product.");
+          await handleApiError(response);
         }
       }
 
@@ -414,7 +422,7 @@
           document.getElementById("productPrice").value = "";
           currentProductId = null;
         } else {
-          alert("Error updating product.");
+          await handleApiError(response);
         }
       }
 
@@ -427,27 +435,26 @@
           if (document.getElementById("productList").innerHTML)
             renderProductList();
         } else {
-          alert("Error deleting product.");
+          await handleApiError(response);
         }
       }
 
+      // --- ORDER FUNCTIONS ---
       async function createOrder() {
         const clientId = document.getElementById("orderClientId").value;
         if (!clientId)
           return alert("Please select a client to create an order.");
-
         try {
           const response = await fetch("/orders", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ clientId }),
           });
-          if (!response.ok) throw new Error("Failed to create order.");
-
+          if (!response.ok) throw await response.json();
           alert("Order created successfully! Now you can add items.");
           if (document.getElementById("orderList").innerHTML) renderOrderList();
         } catch (error) {
-          alert(error.message);
+          alert(`Error: ${error.message}`);
         }
       }
 
@@ -461,7 +468,7 @@
         let productOptions = allProducts
           .map(
             (p) =>
-              `<option value="${p.id}">${p.name} - $${p.price.toFixed(
+              `<option value="${p.id}">${p.name} - $${Number(p.price).toFixed(
                 2
               )}</option>`
           )
@@ -473,11 +480,12 @@
           const orderDate = new Date(order.orderDate).toLocaleString();
 
           let itemsHtml = "<ul>";
-          if (order.items.length > 0) {
+          if (order.items && order.items.length > 0) {
             order.items.forEach((item) => {
+              // CORREÇÃO: Acessar dados aninhados do produto
               itemsHtml += `<li>${item.quantity}x ${
                 item.productName
-              } @ $${item.price.toFixed(2)} each</li>`;
+              } @ $${Number(item.priceAtTimeOfOrder).toFixed(2)} each</li>`;
             });
           } else {
             itemsHtml += "<li>No items yet.</li>";
@@ -487,42 +495,42 @@
           let actionButtons = "";
           if (order.status === "PENDING") {
             actionButtons = `
-                  <div class="buttons">
-                    <button class="update-btn" style="background-color: #2ed573;" onclick="confirmOrder('${order.id}')">Confirm</button>
-                    <button class="delete-btn" onclick="cancelOrder('${order.id}')">Cancel</button>
-                  </div>
-                `;
+              <div class="buttons">
+                <button class="update-btn" style="background-color: #2ed573;" onclick="confirmOrder('${order.id}')">Confirm</button>
+                <button class="delete-btn" onclick="cancelOrder('${order.id}')">Cancel</button>
+              </div>`;
           }
 
           const listItem = document.createElement("li");
           listItem.innerHTML = `
-              <div class="entity-header">
-                <span>Order #${order.id.substring(0, 8)}...</span>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <span>Status: <strong>${order.status}</strong></span>
-                    ${actionButtons}
-                </div>
+            <div class="entity-header">
+              <span>Order #${order.id.substring(0, 8)}...</span>
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <span>Status: <strong>${order.status}</strong></span>
+                ${actionButtons}
               </div>
-              <div class="order-details">
-                <strong>Client:</strong> ${clientName}<br>
-                <strong>Total:</strong> $${order.totalPrice.toFixed(2)}<br>
-                <strong>Date:</strong> ${orderDate}
-              </div>
-              <div class="order-items">
-                <strong>Items:</strong>
-                ${itemsHtml}
-              </div>
-              ${
-                order.status === "PENDING"
-                  ? `
-              <div class="add-item-form">
-                <select id="product-select-${order.id}">${productOptions}</select>
-                <input id="quantity-input-${order.id}" type="number" value="1" min="1" style="max-width: 80px;">
-                <button onclick="addItemToOrder('${order.id}')">Add Item</button>
-              </div>`
-                  : ""
-              }
-            `;
+            </div>
+            <div class="order-details">
+              <strong>Client:</strong> ${clientName}<br>
+              <strong>Total:</strong> $${Number(order.totalPrice).toFixed(
+                2
+              )}<br>
+              <strong>Date:</strong> ${orderDate}
+            </div>
+            <div class="order-items">
+              <strong>Items:</strong>
+              ${itemsHtml}
+            </div>
+            ${
+              order.status === "PENDING"
+                ? `
+            <div class="add-item-form">
+              <select id="product-select-${order.id}">${productOptions}</select>
+              <input id="quantity-input-${order.id}" type="number" value="1" min="1" style="max-width: 80px;">
+              <button onclick="addItemToOrder('${order.id}')">Add Item</button>
+            </div>`
+                : ""
+            }`;
           listElement.appendChild(listItem);
         });
         document.getElementById("toggleOrdersBtn").textContent =
@@ -559,61 +567,39 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, quantity }),
           });
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || "Failed to add item to order.");
-          }
+          if (!response.ok) throw await response.json();
           alert("Item added successfully!");
           renderOrderList();
         } catch (error) {
           alert(`Error: ${error.message}`);
         }
       }
+
       async function confirmOrder(orderId) {
-        if (
-          !confirm(
-            "Are you sure you want to confirm this order? Items can no longer be added."
-          )
-        )
+        if (!confirm("Confirm this order? Items can no longer be added."))
           return;
         try {
           const response = await fetch(`/orders/${orderId}/confirm`, {
             method: "POST",
           });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(
-              errorText || `Request failed with status ${response.status}`
-            );
-          }
-
+          if (!response.ok) throw await response.json();
           alert("Order confirmed successfully!");
           renderOrderList();
         } catch (error) {
-          console.error("Confirm Order Error:", error);
           alert(`Error: ${error.message}`);
         }
       }
 
       async function cancelOrder(orderId) {
-        if (!confirm("Are you sure you want to cancel this order?")) return;
+        if (!confirm("Cancel this order?")) return;
         try {
           const response = await fetch(`/orders/${orderId}/cancel`, {
             method: "POST",
           });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(
-              errorText || `Request failed with status ${response.status}`
-            );
-          }
-
+          if (!response.ok) throw await response.json();
           alert("Order cancelled successfully!");
           renderOrderList();
         } catch (error) {
-          console.error("Cancel Order Error:", error);
           alert(`Error: ${error.message}`);
         }
       }

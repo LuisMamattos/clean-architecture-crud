@@ -12,13 +12,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.hexcrud.api.web.dto.product.CreateProductRequest;
 import com.example.hexcrud.api.web.dto.product.UpdateProductRequest;
 import com.example.hexcrud.domain.model.product.Product;
-import com.example.hexcrud.domain.repository.product.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -26,56 +27,53 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @TestPropertySource(locations = "classpath:test.properties")
 class ProductControllerIT {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
-
-    @Autowired
-    private ProductRepository productRepository;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private MongoTemplate mongoTemplate;
 
     @BeforeEach
     void setUp() {
-         mongoTemplate.dropCollection(Product.class);
+        mongoTemplate.dropCollection(Product.class);
+    }
+    
+    @Test
+    @DisplayName("POST /products - Should create a product and return 201")
+    void shouldCreateProduct() throws Exception {
+        var createRequest = new CreateProductRequest("New Product", new BigDecimal("19.99"));
+
+        mockMvc.perform(post("/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value("New Product"))
+                .andExpect(jsonPath("$.price").value(19.99));
     }
 
     @Test
-    @DisplayName("Should update a product successfully and return status 200")
-    void shouldUpdateProductSuccessfully() throws Exception {
-        // Arrange: Crie um produto usando a nova dependência
-        Product existingProduct = productRepository.save(new Product("Old Name", BigDecimal.valueOf(10.00)));
-        String productId = existingProduct.getId();
-
-        var updateRequest = new UpdateProductRequest("New Name", BigDecimal.valueOf(99.00));
-
-        // Act & Assert
-        mockMvc.perform(
-                put("/products/{id}", productId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(productId))
-                .andExpect(jsonPath("$.name").value("New Name"))
-                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(99.00)));
-    }
-
-    @Test
-    @DisplayName("Should return status 404 when trying to update a non-existent product")
-    void shouldReturnNotFoundWhenUpdatingNonExistentProduct() throws Exception {
+    @DisplayName("PUT /products/{id} - Should update a product and return 200")
+    void shouldUpdateProduct() throws Exception {
         // Arrange
-        String nonExistentId = "60d5ec49e9b8a22b0c14b581"; // Um ID MongoDB válido, mas inexistente
-        var updateRequest = new UpdateProductRequest("New Name", BigDecimal.valueOf(99.00));
+        Product existingProduct = mongoTemplate.save(Product.create("Old Name", new BigDecimal("10.00")));
+        var updateRequest = new UpdateProductRequest("New Name", new BigDecimal("99.00"));
 
-        // Act & Assert
-        mockMvc.perform(put("/products/{id}", nonExistentId)
+        mockMvc.perform(put("/products/{id}", existingProduct.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Product not found"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(existingProduct.getId()))
+                .andExpect(jsonPath("$.name").value("New Name"))
+                .andExpect(jsonPath("$.price").value(99.00));
+    }
+
+    @Test
+    @DisplayName("PUT /products/{id} - Should return 404 when product does not exist")
+    void shouldReturnNotFoundWhenUpdatingNonExistentProduct() throws Exception {
+        var updateRequest = new UpdateProductRequest("New Name", new BigDecimal("99.00"));
+
+        mockMvc.perform(put("/products/{id}", "60d5ec49e9b8a22b0c14b581")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isNotFound());
     }
 }

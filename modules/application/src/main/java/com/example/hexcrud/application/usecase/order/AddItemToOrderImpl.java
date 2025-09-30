@@ -1,5 +1,6 @@
 package com.example.hexcrud.application.usecase.order;
 
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
 import com.example.hexcrud.domain.model.order.Order;
 import com.example.hexcrud.domain.model.product.Product;
 import com.example.hexcrud.domain.repository.order.OrderRepository;
@@ -18,10 +19,10 @@ public class AddItemToOrderImpl implements AddItemToOrder {
     @Override
     public Order execute(Input input) {
         Order order = orderRepository.findById(input.orderId())
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + input.orderId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + input.orderId()));
 
         Product product = productRepository.findById(input.productId())
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + input.productId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + input.productId()));
 
         order.addItem(product, input.quantity());
 

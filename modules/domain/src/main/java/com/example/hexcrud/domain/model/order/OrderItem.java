@@ -1,43 +1,62 @@
 package com.example.hexcrud.domain.model.order;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
+import org.springframework.data.annotation.PersistenceCreator;
+
+import com.example.hexcrud.domain.exception.DomainValidationException; // Import necessário
 import com.example.hexcrud.domain.model.product.Product;
-
+import org.springframework.data.mongodb.core.mapping.DBRef; 
 
 public class OrderItem {
-
-    private String productId;
-    private String productName;
-    private int quantity;
-    private BigDecimal price; 
-
     
-    private OrderItem(String productId, String productName, int quantity, double price) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive.");
-        }
-        this.productId = productId;
-        this.productName = productName;
+    @DBRef
+    private Product product;
+    private int quantity;
+    private BigDecimal priceAtTimeOfOrder; // "Congela" o preço do produto no momento da compra
+
+    // --- CONSTRUTORES ---
+
+    // Construtor para a lógica de negócio (usado pelo factory)
+    private OrderItem(Product product, int quantity) {
+        this.product = product;
         this.quantity = quantity;
-        this.price = BigDecimal.valueOf(price).setScale(2, RoundingMode.HALF_UP);
+        this.priceAtTimeOfOrder = product.getPrice(); // Captura o preço atual do produto
     }
+
+    // Construtor PARA A PERSISTÊNCIA. O Spring Data usará este.
+    // Ele recebe todos os campos que são salvos no banco de dados.
+    @PersistenceCreator
+    private OrderItem(Product product, int quantity, BigDecimal priceAtTimeOfOrder) {
+        this.product = product;
+        this.quantity = quantity;
+        this.priceAtTimeOfOrder = priceAtTimeOfOrder;
+    }
+
+    // Construtor sem argumentos para o framework
+    private OrderItem() {}
+
+    // --- FACTORY METHOD ---
 
     public static OrderItem create(Product product, int quantity) {
-        return new OrderItem(product.getId(), product.getName(), quantity, product.getPrice());
+        if (product == null) {
+            throw new DomainValidationException("Product cannot be null for an OrderItem.");
+        }
+        if (quantity <= 0) {
+            throw new DomainValidationException("Quantity must be positive.");
+        }
+        return new OrderItem(product, quantity);
     }
+
+    // --- MÉTODOS DE COMPORTAMENTO ---
 
     public BigDecimal getTotal() {
-        return price.multiply(BigDecimal.valueOf(quantity));
+        return priceAtTimeOfOrder.multiply(BigDecimal.valueOf(quantity));
     }
     
-   
-    public String getProductId() { return productId; }
-    public String getProductName() { return productName; }
-    public int getQuantity() { return quantity; }
-    public BigDecimal getPrice() { return price; }
+    // --- GETTERS ---
 
-    
-    private OrderItem() {}
+    public Product getProduct() { return product; }
+    public int getQuantity() { return quantity; }
+    public BigDecimal getPriceAtTimeOfOrder() { return priceAtTimeOfOrder; }
 }

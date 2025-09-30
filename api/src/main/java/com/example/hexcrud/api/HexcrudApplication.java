@@ -3,7 +3,7 @@ package com.example.hexcrud.api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories; // <-- ADICIONE ESTE IMPORT
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories; 
 
 
 @EnableMongoRepositories(basePackages = "com.example.hexcrud.infrastructure.repository")

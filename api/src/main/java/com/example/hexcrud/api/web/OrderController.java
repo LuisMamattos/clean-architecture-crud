@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.hexcrud.api.web.dto.order.AddItemRequest;
+import com.example.hexcrud.api.web.dto.order.AddItemToOrderRequest;
 import com.example.hexcrud.api.web.dto.order.CreateOrderRequest;
 import com.example.hexcrud.api.web.dto.order.OrderResponse;
 import com.example.hexcrud.application.usecase.order.AddItemToOrder;
@@ -21,6 +21,9 @@ import com.example.hexcrud.application.usecase.order.ConfirmOrder;
 import com.example.hexcrud.application.usecase.order.CreateOrder;
 import com.example.hexcrud.application.usecase.order.FindOrderById;
 import com.example.hexcrud.application.usecase.order.ListAllOrders;
+import com.example.hexcrud.domain.model.order.Order;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/orders")
@@ -28,60 +31,57 @@ public class OrderController {
 
     private final CreateOrder createOrder;
     private final AddItemToOrder addItemToOrder;
-    private final FindOrderById findOrderById;
-    private final ListAllOrders listAllOrders;
     private final ConfirmOrder confirmOrder;
     private final CancelOrder cancelOrder;
+    private final FindOrderById findOrderById;
+    private final ListAllOrders listAllOrders;
 
-    public OrderController(CreateOrder createOrder, AddItemToOrder addItemToOrder,
-                           FindOrderById findOrderById, ListAllOrders listAllOrders,
-                           ConfirmOrder confirmOrder, CancelOrder cancelOrder) {
+    public OrderController(CreateOrder createOrder, AddItemToOrder addItemToOrder, ConfirmOrder confirmOrder, CancelOrder cancelOrder, FindOrderById findOrderById, ListAllOrders listAllOrders) {
         this.createOrder = createOrder;
         this.addItemToOrder = addItemToOrder;
-        this.findOrderById = findOrderById;
-        this.listAllOrders = listAllOrders;
         this.confirmOrder = confirmOrder;
         this.cancelOrder = cancelOrder;
+        this.findOrderById = findOrderById;
+        this.listAllOrders = listAllOrders;
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
+    public ResponseEntity<OrderResponse> create(@RequestBody @Valid CreateOrderRequest request) {
         var input = new CreateOrder.Input(request.clientId());
-        var order = createOrder.execute(input);
+        Order order = createOrder.execute(input);
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.fromDomain(order));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable String id) {
-        return findOrderById.execute(id)
-                .map(order -> ResponseEntity.ok(OrderResponse.fromDomain(order)))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<OrderResponse> findById(@PathVariable String id) {
+        Order order = findOrderById.execute(id);
+        return ResponseEntity.ok(OrderResponse.fromDomain(order));
     }
-
-    @PostMapping("/{orderId}/items")
-    public ResponseEntity<OrderResponse> addItemToOrder(@PathVariable String orderId, @RequestBody AddItemRequest request) {
-        var input = new AddItemToOrder.Input(orderId, request.productId(), request.quantity());
-        var updatedOrder = addItemToOrder.execute(input);
-        return ResponseEntity.ok(OrderResponse.fromDomain(updatedOrder));
-    }
-
+    
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+    public ResponseEntity<List<OrderResponse>> listAll() {
         List<OrderResponse> orders = listAllOrders.execute().stream()
                 .map(OrderResponse::fromDomain)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(orders);
     }
 
-    @PostMapping("/{id}/confirm")
-    public ResponseEntity<OrderResponse> confirmOrder(@PathVariable String id) {
-        var updatedOrder = confirmOrder.execute(id);
-        return ResponseEntity.ok(OrderResponse.fromDomain(updatedOrder));
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<OrderResponse> addItem(@PathVariable String orderId, @RequestBody @Valid AddItemToOrderRequest request) {
+        var input = new AddItemToOrder.Input(orderId, request.productId(), request.quantity());
+        Order order = addItemToOrder.execute(input);
+        return ResponseEntity.ok(OrderResponse.fromDomain(order));
     }
 
-    @PostMapping("/{id}/cancel")
-    public ResponseEntity<OrderResponse> cancelOrder(@PathVariable String id) {
-        var updatedOrder = cancelOrder.execute(id);
-        return ResponseEntity.ok(OrderResponse.fromDomain(updatedOrder));
+    @PostMapping("/{orderId}/confirm")
+    public ResponseEntity<OrderResponse> confirm(@PathVariable String orderId) {
+        Order order = confirmOrder.execute(orderId);
+        return ResponseEntity.ok(OrderResponse.fromDomain(order));
+    }
+
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<OrderResponse> cancel(@PathVariable String orderId) {
+        Order order = cancelOrder.execute(orderId);
+        return ResponseEntity.ok(OrderResponse.fromDomain(order));
     }
 }

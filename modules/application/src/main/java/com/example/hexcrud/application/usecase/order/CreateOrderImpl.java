@@ -1,4 +1,7 @@
 package com.example.hexcrud.application.usecase.order;
+
+import com.example.hexcrud.domain.exception.ResourceNotFoundException;
+import com.example.hexcrud.domain.model.client.Client; // Importamos Client
 import com.example.hexcrud.domain.model.order.Order;
 import com.example.hexcrud.domain.repository.client.ClientRepository;
 import com.example.hexcrud.domain.repository.order.OrderRepository;
@@ -14,10 +17,11 @@ public class CreateOrderImpl implements CreateOrder {
 
     @Override
     public Order execute(Input input) {
-        clientRepository.findById(input.clientId())
-                .orElseThrow(() -> new RuntimeException("Client not found with id: " + input.clientId()));
+        Client client = clientRepository.findById(input.clientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot create order: Client not found with id: " + input.clientId()));
 
-        Order newOrder = Order.create(input.clientId());
+        Order newOrder = Order.create(client);
+
         return orderRepository.save(newOrder);
     }
 }
